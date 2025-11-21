@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保险业务员客户接龙系统</title>
+    <style>
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #1890ff;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        .announcement {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .date-selector {
+            margin: 15px 0;
+        }
+        .date-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .date-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .date-btn {
+            padding: 10px 5px;
+            border: 2px solid #e8e8e8;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .date-btn.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: bold;
+        }
+        .session-selector {
+            margin: 15px 0;
+        }
+        .session-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .session-btn {
+            padding: 12px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            cursor: pointer;
+        }
+        .session-btn.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: bold;
+        }
+        .session-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .remaining {
+            color: #ff4d4f;
+            font-weight: bold;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        input:focus, select:focus {
+            border-color: #1890ff;
+            outline: none;
+        }
+        .client-fields {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .client-field {
+            margin-bottom: 10px;
+        }
+        .client-field:last-child {
+            margin-bottom: 0;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background: #40a9ff;
+        }
+        .message {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+        .success { 
+            background: #f6ffed; 
+            border: 1px solid #b7eb8f; 
+            color: #52c41a; 
+        }
+        .error { 
+            background: #fff2f0; 
+            border: 1px solid #ffccc7; 
+            color: #ff4d4f; 
+        }
+        .info { 
+            background: #e6f7ff; 
+            border: 1px solid #91d5ff; 
+            color: #1890ff; 
+        }
+        .my-records {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            display: none;
+        }
+        .record-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #1890ff;
+        }
+        .edit-btn {
+            background: #52c41a;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-top: 5px;
+            width: auto;
+        }
+        .delete-btn {
+            background: #ff4d4f;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-top: 5px;
+            width: auto;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 保险业务员客户接龙</h1>
+            <p>请选择日期和场次填写客户信息</p>
+        </div>
+
+        <!-- 公告栏 -->
+        <div class="announcement">
+            <strong>📢 公告：</strong>
+            <span id="announcementText">欢迎参加客户接龙活动！请先选择日期和场次。</span>
+        </div>
+
+        <!-- 日期选择 -->
+        <div class="date-selector">
+            <label>📅 选择日期：</label>
+            <div class="date-buttons" id="dateButtons">
+                <!-- 日期按钮将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 场次选择 -->
+        <div class="session-selector">
+            <label>⏰ 选择场次：</label>
+            <div class="session-buttons">
+                <div class="session-btn" data-session="am" onclick="selectSession('am')">
+                    上午场<br>
+                    <span class="session-info">10:00-12:00</span>
+                    <div class="session-info">剩余：<span id="amRemaining">20</span>/20人</div>
+                </div>
+                <div class="session-btn" data-session="pm" onclick="selectSession('pm')">
+                    下午场<br>
+                    <span class="session-info">14:00-17:00</span>
+                    <div class="session-info">剩余：<span id="pmRemaining">20</span>/20人</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 报名表单 -->
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="agentName">👤 业务员姓名：</label>
+                <input type="text" id="agentName" placeholder="请输入您的真实姓名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="agentPhone">📞 业务员手机号：</label>
+                <input type="tel" id="agentPhone" placeholder="请输入您的手机号" required>
+            </div>
+
+            <div class="form-group">
+                <label>👥 携带客户：</label>
+                <select id="guestCount" required onchange="toggleClientFields()">
+                    <option value="">请选择客户人数</option>
+                    <option value="1">1位客户</option>
+                    <option value="2">2位客户</option>
+                </select>
+            </div>
+
+            <!-- 客户姓名输入区域 -->
+            <div class="client-fields" id="clientFields" style="display: none;">
+                <div class="client-field" id="client1Field">
+                    <label>客户1姓名：</label>
+                    <input type="text" id="client1" placeholder="请输入客户姓名">
+                </div>
+                <div class="client-field" id="client2Field" style="display: none;">
+                    <label>客户2姓名：</label>
+                    <input type="text" id="client2" placeholder="请输入客户姓名">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">提交报名</button>
+        </form>
+
+        <!-- 我的报名记录 -->
+        <div class="my-records" id="myRecords">
+            <h3>📋 我的报名记录</h3>
+            <div id="recordsList"></div>
+        </div>
+
+        <!-- 消息显示 -->
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        // 初始化日期范围：11月25-30日
+        const dateRange = [
+            '2024-11-25', '2024-11-26', '2024-11-27', 
+            '2024-11-28', '2024-11-29', '2024-11-30'
+        ];
+
+        let selectedDate = '';
+        let selectedSession = '';
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initDates();
+            loadAnnouncement();
+            checkMyRecords();
+        });
+
+        // 初始化日期按钮
+        function initDates() {
+            const dateButtons = document.getElementById('dateButtons');
+            const today = new Date().toISOString().split('T')[0];
+            
+            dateRange.forEach(date => {
+                const dateObj = new Date(date);
+                const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+                const month = dateObj.getMonth() + 1;
+                const day = dateObj.getDate();
+                const weekDay = weekDays[dateObj.getDay()];
+                
+                const button = document.createElement('div');
+                button.className = 'date-btn';
+                button.textContent = `${month}.${day}周${weekDay}`;
+                button.setAttribute('data-date', date);
+                
+                button.onclick = function() {
+                    selectDate(date);
+                };
+                
+                // 默认选择今天或第一个可用日期
+                if (date === today || (!selectedDate && date === dateRange[0])) {
+                    selectDate(date);
+                }
+                
+                dateButtons.appendChild(button);
+            });
+        }
+
+        // 选择日期
+        function selectDate(date) {
+            selectedDate = date;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.date-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-date') === date) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新场次名额显示
+            updateSessionRemaining();
+            checkMyRecords();
+        }
+
+        // 选择场次
+        function selectSession(session) {
+            selectedSession = session;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.session-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-session') === session) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            checkMyRecords();
+        }
+
+        // 切换客户姓名字段显示
+        function toggleClientFields() {
+            const guestCount = parseInt(document.getElementById('guestCount').value);
+            const clientFields = document.getElementById('clientFields');
+            const client1Field = document.getElementById('client1Field');
+            const client2Field = document.getElementById('client2Field');
+            
+            if (guestCount > 0) {
+                clientFields.style.display = 'block';
+                client1Field.style.display = 'block';
+                client2Field.style.display = guestCount >= 2 ? 'block' : 'none';
+            } else {
+                clientFields.style.display = 'none';
+            }
+        }
+
+        // 更新场次剩余名额
+        function updateSessionRemaining() {
+            if (!selectedDate) return;
+            
+            const amRemaining = document.getElementById('amRemaining');
+            const pmRemaining = document.getElementById('pmRemaining');
+            
+            const amData = getSessionData(selectedDate, 'am');
+            const pmData = getSessionData(selectedDate, 'pm');
+            
+            const amTotal = amData.reduce((sum, item) => sum + parseInt(item.guestCount), 0);
+            const pmTotal = pmData.reduce((sum, item) => sum + parseInt(item.guestCount), 0);
+            
+            amRemaining.textContent = 20 - amTotal;
+            pmRemaining.textContent = 20 - pmTotal;
+        }
+
+        // 获取场次数据
+        function getSessionData(date, session) {
+            const allData = getAllData();
+            return allData.filter(item => 
+                item.date === date && item.session === session
+            );
+        }
+
+        // 获取所有数据
+        function getAllData() {
+            const data = localStorage.getItem('insurance_signup_data');
+            return data ? JSON.parse(data) : [];
+        }
+
+        // 保存数据
+        function saveData(data) {
+            localStorage.setItem('insurance_signup_data', JSON.stringify(data));
+        }
+
+        // 加载公告
+        function loadAnnouncement() {
+            const announcement = localStorage.getItem('insurance_announcement');
+            if (announcement) {
+                document.getElementById('announcementText').textContent = announcement;
+            }
+        }
+
+        // 检查我的报名记录
+        function checkMyRecords() {
+            const agentPhone = document.getElementById('agentPhone').value;
+            const myRecords = document.getElementById('myRecords');
+            const recordsList = document.getElementById('recordsList');
+            
+            if (!agentPhone || !selectedDate) {
+                myRecords.style.display = 'none';
+                return;
+            }
+            
+            const allData = getAllData();
+            const myData = allData.filter(item => 
+                item.agentPhone === agentPhone && item.date === selectedDate
+            );
+            
+            if (myData.length === 0) {
+                myRecords.style.display = 'none';
+                return;
+            }
+            
+            recordsList.innerHTML = myData.map(item => `
+                <div class="record-item">
+                    <strong>${item.session === 'am' ? '上午场' : '下午场'}</strong><br>
+                    客户人数：${item.guestCount}人<br>
+                    ${item.guestCount >= 1 ? `客户1：${item.client1 || '未填写'}` : ''}<br>
+                    ${item.guestCount >= 2 ? `客户2：${item.client2 || '未填写'}` : ''}<br>
+                    <button class="edit-btn" onclick="editRecord('${item.id}')">修改客户姓名</button>
+                    <button class="delete-btn" onclick="deleteRecord('${item.id}')">删除</button>
+                </div>
+            `).join('');
+            
+            myRecords.style.display = 'block';
+        }
+
+        // 表单提交
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const formData = {
+                id: generateId(),
+                date: selectedDate,
+                session: selectedSession,
+                agentName: document.getElementById('agentName').value.trim(),
+                agentPhone: document.getElementById('agentPhone').value.trim(),
+                guestCount: document.getElementById('guestCount').value,
+                client1: document.getElementById('client1').value.trim(),
+                client2: document.getElementById('client2').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+            
+            // 检查业务员在该场次是否已超限
+            if (!checkAgentLimit(formData)) {
+                return;
+            }
+            
+            // 保存数据
+            const allData = getAllData();
+            allData.push(formData);
+            saveData(allData);
+            
+            showMessage('报名成功！', 'success');
+            updateSessionRemaining();
+            checkMyRecords();
+            resetForm();
+        });
+
+        // 验证表单
+        function validateForm() {
+            if (!selectedDate) {
+                showMessage('请选择日期！', 'error');
+                return false;
+            }
+            
+            if (!selectedSession) {
+                showMessage('请选择场次！', 'error');
+                return false;
+            }
+            
+            const agentName = document.getElementById('agentName').value.trim();
+            const agentPhone = document.getElementById('agentPhone').value.trim();
+            const guestCount = document.getElementById('guestCount').value;
+            
+            if (!agentName) {
+                showMessage('请输入业务员姓名！', 'error');
+                return false;
+            }
+            
+            if (!agentPhone || !/^1[3-9]\d{9}$/.test(agentPhone)) {
+                showMessage('请输入正确的手机号！', 'error');
+                return false;
+            }
+            
+            if (!guestCount) {
+                showMessage('请选择携带客户人数！', 'error');
+                return false;
+            }
+            
+            // 验证客户姓名
+            const client1 = document.getElementById('client1').value.trim();
+            const client2 = document.getElementById('client2').value.trim();
+            
+            if (guestCount >= 1 && !client1) {
+                showMessage('请输入客户1姓名！', 'error');
+                return false;
+            }
+            
+            if (guestCount >= 2 && !client2) {
+                showMessage('请输入客户2姓名！', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 检查业务员限制
+        function checkAgentLimit(formData) {
+            const allData = getAllData();
+            const agentSessionData = allData.filter(item => 
+                item.date === formData.date && 
+                item.session === formData.session && 
+                item.agentPhone === formData.agentPhone
+            );
+            
+            const totalGuests = agentSessionData.reduce((sum, item) => sum + parseInt(item.guestCount), 0);
+            const newTotal = totalGuests + parseInt(formData.guestCount);
+            
+            if (newTotal > 2) {
+                showMessage(`您在本场次已报${totalGuests}人，本次报${formData.guestCount}人将超过2人限制！`, 'error');
+                return false;
+            }
+            
+            // 检查场次总人数限制
+            const sessionData = allData.filter(item => 
+                item.date === formData.date && 
+                item.session === formData.session
+            );
+            
+            const sessionTotal = sessionData.reduce((sum, item) => sum + parseInt(item.guestCount), 0);
+            const newSessionTotal = sessionTotal + parseInt(formData.guestCount);
+            
+            if (newSessionTotal > 20) {
+                showMessage('该场次名额已满！', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 生成唯一ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('agentName').value = '';
+            document.getElementById('guestCount').value = '';
+            document.getElementById('client1').value = '';
+            document.getElementById('client2').value = '';
+            document.getElementById('clientFields').style.display = 'none';
+        }
+
+        // 编辑记录
+        function editRecord(recordId) {
+            const allData = getAllData();
+            const record = allData.find(item => item.id === recordId);
+            
+            if (!record) {
+                showMessage('记录不存在！', 'error');
+                return;
+            }
+            
+            const newClient1 = prompt('请输入客户1姓名：', record.client1 || '');
+            if (newClient1 === null) return;
+            
+            const newClient2 = record.guestCount >= 2 ? 
+                prompt('请输入客户2姓名：', record.client2 || '') : '';
+            
+            if (newClient2 === null) return;
+            
+            record.client1 = newClient1.trim();
+            if (record.guestCount >= 2) {
+                record.client2 = newClient2.trim();
+            }
+            
+            saveData(allData);
+            showMessage('客户姓名修改成功！', 'success');
+            checkMyRecords();
+        }
+
+        // 删除记录
+        function deleteRecord(recordId) {
+            if (!confirm('确定要删除这条记录吗？')) {
+                return;
+            }
+            
+            const allData = getAllData();
+            const filteredData = allData.filter(item => item.id !== recordId);
+            saveData(filteredData);
+            
+            showMessage('记录删除成功！', 'success');
+            updateSessionRemaining();
+            checkMyRecords();
+        }
+
+        // 手机号输入时检查记录
+        document.getElementById('agentPhone').addEventListener('input', function() {
+            setTimeout(() => {
+                checkMyRecords();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
